@@ -13,7 +13,7 @@ RUN ./gradlew dependencies --no-daemon 2>/dev/null || true
 
 # Copy source and build (excluding the Windows stockfish.exe from resources)
 COPY src ./src
-RUN ./gradlew bootJar --no-daemon -x test
+RUN chmod +x gradlew && ./gradlew bootJar --no-daemon -x test
 
 # ── Stage 2: Runtime ────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-jammy

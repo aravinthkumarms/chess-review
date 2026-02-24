@@ -86,19 +86,19 @@ public class StockfishService {
                 File binaryFile = new File(stockfishBinaryPath);
                 if (!binaryFile.exists() || !binaryFile.canExecute()) {
                     throw new FileNotFoundException(
-                            "Stockfish binary not found or not executable at STOCKFISH_PATH: " + stockfishBinaryPath);
+                            "Stockfish not found or not executable at STOCKFISH_PATH: " + stockfishBinaryPath);
                 }
                 engineProcess = new ProcessBuilder(stockfishBinaryPath)
                         .redirectErrorStream(true)
                         .start();
             } else {
-                // Local Windows dev path — extract bundled .exe from classpath resources
+                // Local Windows dev — extract bundled .exe from classpath
                 File tempExe = File.createTempFile("stockfish_instance", ".exe");
                 tempExe.deleteOnExit();
                 try (InputStream is = getClass().getResourceAsStream("/stockfish.exe")) {
                     if (is == null) {
                         throw new FileNotFoundException(
-                                "stockfish.exe not found in classpath. Set STOCKFISH_PATH env var for production.");
+                                "stockfish.exe not found in classpath. On Linux, set the STOCKFISH_PATH env var.");
                     }
                     java.nio.file.Files.copy(is, tempExe.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 }
