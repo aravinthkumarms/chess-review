@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: chess-analysis
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: STOCKFISH_PATH
+        value: /usr/games/stockfish
+      - key: JAVA_OPTS
+        value: -Xmx400m -Xms200m
+    healthCheckPath: /
+    autoDeploy: true

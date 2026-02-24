@@ -1,0 +1,43 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.chess'
+version = '0.0.1-SNAPSHOT'
+description = 'Chess analysis custom website'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+
+	// Web + REST
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Thymeleaf (if you're building UI server-side)
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// Chess PGN parsing
+	implementation 'com.github.bhlangonijr:chesslib:1.3.6'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
