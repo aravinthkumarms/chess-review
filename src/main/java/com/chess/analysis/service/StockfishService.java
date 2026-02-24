@@ -75,19 +75,37 @@ public class StockfishService {
         }
 
         private void startEngine() throws IOException {
-            File tempExe = File.createTempFile("stockfish_instance", ".exe");
-            tempExe.deleteOnExit();
+            // On Linux/Render: use the system Stockfish binary (installed via apt-get in
+            // Dockerfile)
+            // On Windows (local dev): fall back to extracting the bundled stockfish.exe
+            // from classpath
+            String stockfishBinaryPath = System.getenv("STOCKFISH_PATH");
 
-            try (InputStream is = getClass().getResourceAsStream("/stockfish.exe")) {
-                if (is == null) {
-                    throw new FileNotFoundException("stockfish.exe not found in resources directory.");
+            if (stockfishBinaryPath != null && !stockfishBinaryPath.isBlank()) {
+                // Production / Render path — use system binary directly
+                File binaryFile = new File(stockfishBinaryPath);
+                if (!binaryFile.exists() || !binaryFile.canExecute()) {
+                    throw new FileNotFoundException(
+                            "Stockfish binary not found or not executable at STOCKFISH_PATH: " + stockfishBinaryPath);
                 }
-                java.nio.file.Files.copy(is, tempExe.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                engineProcess = new ProcessBuilder(stockfishBinaryPath)
+                        .redirectErrorStream(true)
+                        .start();
+            } else {
+                // Local Windows dev path — extract bundled .exe from classpath resources
+                File tempExe = File.createTempFile("stockfish_instance", ".exe");
+                tempExe.deleteOnExit();
+                try (InputStream is = getClass().getResourceAsStream("/stockfish.exe")) {
+                    if (is == null) {
+                        throw new FileNotFoundException(
+                                "stockfish.exe not found in classpath. Set STOCKFISH_PATH env var for production.");
+                    }
+                    java.nio.file.Files.copy(is, tempExe.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+                engineProcess = new ProcessBuilder(tempExe.getAbsolutePath())
+                        .redirectErrorStream(true)
+                        .start();
             }
-
-            engineProcess = new ProcessBuilder(tempExe.getAbsolutePath())
-                    .redirectErrorStream(true)
-                    .start();
 
             reader = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(engineProcess.getOutputStream()));

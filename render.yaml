@@ -8,6 +8,6 @@ services:
       - key: STOCKFISH_PATH
         value: /usr/games/stockfish
       - key: JAVA_OPTS
-        value: -Xmx400m -Xms200m
+        value: -Xmx380m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=80m
     healthCheckPath: /
     autoDeploy: true
